@@ -1,70 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+{% extends 'layout/master.html.twig' %}
 
-        <title>MyTask! 1.0</title>
+{% block title %}Task List - {% endblock %}
 
-        <!-- Latest compiled and minified CSS -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+{% block prebody %}
+    {% include 'includes/menu.html.twig' %}
+{% endblock %}
 
-        <!-- Optional theme -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
-    </head>
+{% block contents %}
 
-    <body>
+    <h2>Task List</h2>
 
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
+    <hr>
 
-                    <h1>MyTask! 1.0</h1>
+    <p style="text-align: right;">Filter:
+        <select id="task_status" onclick="changeType()">
+            <option value="all">All Tasks</option>
+            <option value="done">Done Tasks</option>
+            <option value="undone">Undone Tasks</option>
+        </select>
+    </p>
 
-                    <p>
-                        <a href="{{ path("task_list") }}">Tasks List</a> -
-                        <a href="{{ path("task_add") }}">Add New Task</a> -
-                        <a href="{{ path("logout") }}">Logout</a>
-                    </p>
+    {% if(tasks|length > 0) %}
+        <table class="table table-striped">
+            <thead>
+            <th>ID</th>
+            <th>Task Name</th>
+            <th>Description</th>
+            <th>Operations</th>
+            </thead>
+            <tbody>
+            {% for task in tasks %}
+                <tr>
+                    <td>{{ task.id }}</td>
+                    <td>{{ task.title }}</td>
+                    <td><i>{{ task.description }}</i></td>
+                    <td>
+                        {% if task.getIsDone %}
+                            <a class="btn btn-sm btn-warning" href="{{ path('task_mark', { taskId: task.id , status : 'undone' }) }}">Mark as Undone</a>
+                        {% else %}
+                            <a class="btn btn-sm btn-success" href="{{ path('task_mark', { taskId: task.id , status : 'done' }) }}">Mark as Done</a>
+                        {% endif %}
+                        <a href="{{ path('task_edit', { taskId : task.id}) }}" class="btn btn-sm btn-info">Edit</a>
+                        <a href="{{ path('task_remove', { taskId : task.id}) }}" onclick="return confirm('Are you sure to delete this task?')" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No {% if (type != 'all') %} "{{ type }}" {% endif %} tasks for you right now.</p>
+    {% endif %}
 
-                    <hr>
+    <script>
+        function changeType()
+        {
+            window.location.href = '{{ path('task_list') }}/' + jQuery('#task_status').val();
+        }
 
-                    {% if(tasks|length > 0) %}
-                        <table class="table table-striped">
-                            <thead>
-                                <th>ID</th>
-                                <th>Task Name</th>
-                                <th>Description</th>
-                                <th>Operations</th>
-                            </thead>
-                            <tbody>
-                                {% for task in tasks %}
-                                    <tr>
-                                        <td>{{ task.id }}</td>
-                                        <td>{{ task.title }}</td>
-                                        <td><i>{{ task.description }}</i></td>
-                                        <td>
-                                            {% if task.getIsDone %}
-                                                <a class="btn btn-sm btn-warning" href="{{ path('task_mark', { taskId: task.id , status : 'undone' }) }}">Mark as Undone</a>
-                                            {% else %}
-                                                <a class="btn btn-sm btn-success" href="{{ path('task_mark', { taskId: task.id , status : 'done' }) }}">Mark as Done</a>
-                                            {% endif %}
-                                            <a href="{{ path('task_edit', { taskId : task.id}) }}" class="btn btn-sm btn-info">Edit</a>
-                                            <a href="{{ path('task_remove', { taskId : task.id}) }}" onclick="return confirm('Are you sure to delete this task?')" class="btn btn-sm btn-danger">Delete</a>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    {% else %}
-                        <p>No tasks for you right now.</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+        jQuery(document).ready(function(){
+            $('#task_status').val('{{ type }}');
+        });
+    </script>
 
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-        <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-    </body>
-</html>
+{% endblock %}

@@ -50,9 +50,16 @@ class DefaultController extends Controller
         $user->setEmail($request->get('email'));
         $user->setPassword($encoder->encodePassword($user, $request->get('password')));
 
+        $errors = $this->get('validator')->validate($user);
+        if(count($errors) > 0){
+            $this->addFlash('validation_errors', 'Please fill every field in the following form.');
+            return new RedirectResponse($this->generateUrl('signup'));
+        }
+
         $em->persist($user);
         $em->flush();
 
+        $this->addFlash('success_message', 'User successfully created. You can now login with your chosen credentials.');
         return new RedirectResponse($this->generateUrl('login'));
     }
 
@@ -72,8 +79,6 @@ class DefaultController extends Controller
 
         return $this->render('login.html.twig', compact('error', 'lastUsername'));
     }
-
-
 
     private function alreadyLoggedInCheck()
     {

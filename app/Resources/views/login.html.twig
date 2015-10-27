@@ -1,60 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+{% extends 'layout/master.html.twig' %}
 
-        <title>MyTask! 1.0</title>
+{% block title %}Login - {% endblock %}
 
-        <!-- Latest compiled and minified CSS -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+{% block contents %}
 
-        <!-- Optional theme -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
-    </head>
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <h2>Login</h2>
 
-    <body>
+            <hr>
 
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 col-md-offset-4">
-
-                    <h1>MyTask! 1.0</h1>
-
-                    <hr>
-
-                    {% if error %}
-                        <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-                        <hr>
-                    {% endif %}
-
-                    <form action="{{ path('login-check') }}" method="post">
-                        <p>
-                            <label for="email">Email Address:</label>
-                            <input type="text" name="_username" id="email" class="form-control" value="{{ lastUsername }}" autofocus />
-                        </p>
-
-                        <p>
-                            <label for="password">Password</label>
-                            <input type="password" name="_password" id="password" class="form-control" />
-                        </p>
-
-                        <hr>
-
-                        <p>
-                            <button class="btn btn-success form-control">Login</button>
-                        </p>
-
-                        <hr>
-
-                        <p><a href="{{ path('signup') }}">Create a New User</a></p>
-                    </form>
+            {% if error %}
+                <div class="alert alert-warning alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    {{ error.messageKey|trans(error.messageData, 'security') }}
                 </div>
-            </div>
-        </div>
 
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-        <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-    </body>
-</html>
+                <hr>
+            {% endif %}
+
+            <form action="{{ path('login-check') }}" method="post">
+                <p>
+                    <label for="email">Email Address:</label>
+                    <input type="text" name="_username" id="email" class="form-control" value="{{ lastUsername }}" autofocus />
+                </p>
+
+                <p>
+                    <label for="password">Password</label>
+                    <input type="password" name="_password" id="password" class="form-control" />
+                </p>
+
+                <hr>
+
+                <p>
+                    <button class="btn btn-success form-control">Login</button>
+                </p>
+
+                <hr>
+
+                <p><a href="{{ path('signup') }}">Create a New User</a></p>
+            </form>
+        </div>
+    </div>
+{% endblock %}
