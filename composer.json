@@ -19,7 +19,8 @@
         "sensio/framework-extra-bundle": "^3.0.2",
         "incenteev/composer-parameter-handler": "~2.0",
         "ircmaxell/password-compat": "^1.0",
-        "doctrine/doctrine-fixtures-bundle": "^2.2"
+        "doctrine/doctrine-fixtures-bundle": "^2.2",
+        "simple-bus/symfony-bridge": "^4.1"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

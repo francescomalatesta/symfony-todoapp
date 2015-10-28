@@ -22,3 +22,9 @@ Every day I will implement something new, following a roadmap that I will plan d
 * Basic validation, using annotations;
 * Implementing a repository for Tasks;
 * Filter tasks by status (done, undone, all);
+
+## Day 3
+
+* Encapsulate "complex" operations in commands
+* Training with Service Container and dependency injection
+* General naming refactoring

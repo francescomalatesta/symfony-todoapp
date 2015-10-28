@@ -2,15 +2,13 @@
 
 namespace AppBundle\Controller;
 
-use AppBundle\Entity\Task;
-use AppBundle\Entity\User;
-use AppBundle\Repositories\TaskRepository;
+use AppBundle\Command\TaskAddCommand;
+use AppBundle\Command\TaskUpdateCommand;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -34,24 +32,21 @@ class TaskController extends Controller
      */
     public function addPostAction(Request $request)
     {
-        $task = new Task(
-            $request->get('title'),
-            $request->get('description')
-        );
+        try {
 
-        $task->setUser($this->getUser());
+            $this->get('command_bus')->handle(
+                new TaskAddCommand($request->get('title'), $request->get('description'), $this->getUser())
+            );
 
-        $errors = $this->get('validator')->validate($task);
+            $this->addFlash('success_message', 'Task added successfully.');
+            return new RedirectResponse($this->generateUrl('task_list'));
 
-        if(count($errors) > 0){
-            $this->addFlash('validation_errors', 'Both title and description cannot be blank.');
+        } catch (\Exception $e) {
+
+            $this->addFlash('error_message', 'Error: please check if you filled every field in the form.');
             return new RedirectResponse($this->generateUrl('task_add'));
+
         }
-
-        $this->getDoctrine()->getRepository('AppBundle:Task')->save($task);
-
-        $this->addFlash('success_message', 'Task added successfully.');
-        return new RedirectResponse($this->generateUrl('task_list'));
     }
 
     /**
@@ -61,7 +56,6 @@ class TaskController extends Controller
     public function indexAction(Request $request, $type = 'all')
     {
         $tasks = $this->getDoctrine()->getRepository('AppBundle:Task')->getByUser($this->getUser(), $type);
-
         return $this->render('task_list.html.twig', compact('tasks', 'type'));
     }
 
@@ -83,21 +77,23 @@ class TaskController extends Controller
     {
         $task = $this->getDoctrine()->getRepository('AppBundle:Task')->find($taskId);
 
-        $task->setTitle($request->get('title'));
-        $task->setDescription($request->get('description'));
-        $task->setIsDone($request->get('is_done'));
+        try {
 
-        $errors = $this->get('validator')->validate($task);
+            $this->get('command_bus')->handle(
+                new TaskUpdateCommand(
+                    $request->get('title'), $request->get('description'), $task
+                )
+            );
 
-        if(count($errors) > 0){
+            $this->addFlash('success_message', 'Task updated successfully.');
+            return new RedirectResponse($this->generateUrl('task_list'));
+
+        } catch (\Exception $e) {
+
             $this->addFlash('validation_errors', 'Both title and description cannot be blank.');
             return new RedirectResponse($this->generateUrl('task_edit', ['taskId' => $taskId]));
+
         }
-
-        $this->getDoctrine()->getRepository('AppBundle:Task')->save($task);
-
-        $this->addFlash('success_message', 'Task updated successfully.');
-        return new RedirectResponse($this->generateUrl('task_list'));
     }
 
     /**
@@ -119,11 +115,12 @@ class TaskController extends Controller
      */
     public function markAction(Request $request, $taskId, $status)
     {
-        $newStatus = ($status == 'done') ? true : false;
-
         $task = $this->getDoctrine()->getRepository('AppBundle:Task')->find($taskId);
 
-        $task->setIsDone($newStatus);
+        if($status == 'done')
+            $task->markAsDone();
+        else
+            $task->markAsUndone();
 
         $this->getDoctrine()->getRepository('AppBundle:Task')->save($task);
 

@@ -50,22 +50,24 @@ class Task
      **/
     protected $user;
 
+
     /**
-     * Task constructor.
-     * @param string $title
-     * @param string $description
+     * @param $title
+     * @param $description
+     * @param User $user
+     * @param bool|false $isDone
      */
-    public function __construct($title, $description, $isDone = false)
+    public function __construct($title, $description, User $user, $isDone = false)
     {
         $this->title = $title;
         $this->description = $description;
         $this->isDone = $isDone;
+
+        $this->setUser($user);
     }
 
     /**
-     * Get id
-     *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -73,22 +75,6 @@ class Task
     }
 
     /**
-     * Set title
-     *
-     * @param string $title
-     *
-     * @return Task
-     */
-    public function setTitle($title)
-    {
-        $this->title = $title;
-
-        return $this;
-    }
-
-    /**
-     * Get title
-     *
      * @return string
      */
     public function getTitle()
@@ -97,22 +83,6 @@ class Task
     }
 
     /**
-     * Set description
-     *
-     * @param string $description
-     *
-     * @return Task
-     */
-    public function setDescription($description)
-    {
-        $this->description = $description;
-
-        return $this;
-    }
-
-    /**
-     * Get description
-     *
      * @return string
      */
     public function getDescription()
@@ -121,25 +91,9 @@ class Task
     }
 
     /**
-     * Set isDone
-     *
-     * @param boolean $isDone
-     *
-     * @return Task
+     * @return bool|false
      */
-    public function setIsDone($isDone)
-    {
-        $this->isDone = $isDone;
-
-        return $this;
-    }
-
-    /**
-     * Get isDone
-     *
-     * @return boolean
-     */
-    public function getIsDone()
+    public function isDone()
     {
         return $this->isDone;
     }
@@ -153,11 +107,37 @@ class Task
     }
 
     /**
-     * @param mixed $user
+     * @param $user
      */
     public function setUser($user)
     {
         $this->user = $user;
+    }
+
+    /**
+     *
+     */
+    public function markAsDone()
+    {
+        $this->isDone = true;
+    }
+
+    /**
+     *
+     */
+    public function markAsUndone()
+    {
+        $this->isDone = false;
+    }
+
+    /**
+     * @param $title
+     * @param $description
+     */
+    public function update($title, $description)
+    {
+        $this->title = $title;
+        $this->description = $description;
     }
 }
 

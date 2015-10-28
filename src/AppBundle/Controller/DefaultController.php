@@ -2,6 +2,7 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Command\UserSignupCommand;
 use AppBundle\Entity\User;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,26 +42,18 @@ class DefaultController extends Controller
      */
     public function signupPostAction(Request $request)
     {
-        $em = $this->getDoctrine()->getEntityManager();
-        $encoder = $this->container->get('security.password_encoder');
+        try {
+            $this->get('command_bus')->handle(
+                new UserSignupCommand($request->get('name'), $request->get('email'), $request->get('password'))
+            );
 
-        $user = new User();
+            $this->addFlash('success_message', 'User successfully created. You can now login with your chosen credentials.');
+            return new RedirectResponse($this->generateUrl('login'));
 
-        $user->setName($request->get('name'));
-        $user->setEmail($request->get('email'));
-        $user->setPassword($encoder->encodePassword($user, $request->get('password')));
-
-        $errors = $this->get('validator')->validate($user);
-        if(count($errors) > 0){
-            $this->addFlash('validation_errors', 'Please fill every field in the following form.');
+        } catch (\Exception $e){
+            $this->addFlash('error_message', 'Error: one or more fields in the following form were not filled.');
             return new RedirectResponse($this->generateUrl('signup'));
         }
-
-        $em->persist($user);
-        $em->flush();
-
-        $this->addFlash('success_message', 'User successfully created. You can now login with your chosen credentials.');
-        return new RedirectResponse($this->generateUrl('login'));
     }
 
     /**

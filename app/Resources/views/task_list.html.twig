@@ -35,7 +35,7 @@
                     <td>{{ task.title }}</td>
                     <td><i>{{ task.description }}</i></td>
                     <td>
-                        {% if task.getIsDone %}
+                        {% if task.isDone() %}
                             <a class="btn btn-sm btn-warning" href="{{ path('task_mark', { taskId: task.id , status : 'undone' }) }}">Mark as Undone</a>
                         {% else %}
                             <a class="btn btn-sm btn-success" href="{{ path('task_mark', { taskId: task.id , status : 'done' }) }}">Mark as Done</a>

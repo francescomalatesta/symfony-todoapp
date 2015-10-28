@@ -4,6 +4,33 @@ parameters:
 #    parameter_name: value
 
 services:
-#    service_name:
-#        class: AppBundle\Directory\ClassName
-#        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
+
+  user_repository:
+    class: AppBundle\Repositories\UserRepository
+    factory: [ '@doctrine.orm.entity_manager', 'getRepository' ]
+    arguments:
+      - AppBundle:User
+
+  task_repository:
+      class: AppBundle\Repositories\TaskRepository
+      factory: [ '@doctrine.orm.entity_manager', 'getRepository' ]
+      arguments:
+        - AppBundle:Task
+
+  user_signup_command_handler:
+    class: AppBundle\CommandHandler\UserSignupCommandHandler
+    arguments: [ '@user_repository', '@validator', '@security.encoder_factory' ]
+    tags:
+      - { name: command_handler, handles: AppBundle\Command\UserSignupCommand }
+
+  task_add_command_handler:
+    class: AppBundle\CommandHandler\TaskAddCommandHandler
+    arguments: [ '@task_repository', '@validator' ]
+    tags:
+      - { name: command_handler, handles: AppBundle\Command\TaskAddCommand }
+
+  task_update_command_handler:
+      class: AppBundle\CommandHandler\TaskUpdateCommandHandler
+      arguments: [ '@task_repository', '@validator' ]
+      tags:
+        - { name: command_handler, handles: AppBundle\Command\TaskUpdateCommand }

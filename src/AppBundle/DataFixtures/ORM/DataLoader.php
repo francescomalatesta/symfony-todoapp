@@ -2,8 +2,8 @@
 
 namespace AppBundle\DataFixtures\ORM;
 
-use AppBundle\Entity\Task;
-use AppBundle\Entity\User;
+use AppBundle\Command\TaskAddCommand;
+use AppBundle\Command\UserSignupCommand;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
@@ -26,27 +26,11 @@ class DataLoader implements FixtureInterface, ContainerAwareInterface
 
     public function load(ObjectManager $manager)
     {
-        $user = new User();
+        $this->container->get('command_bus')->handle(new UserSignupCommand('Francesco Malatesta', 'francescomalatesta@live.it', '123456'));
 
-        $encoder = $this->container->get('security.password_encoder');
-        $encoded = $encoder->encodePassword($user, '123456');
+        $user = $manager->getRepository('AppBundle:User')->findOneBy(['name' => 'Francesco Malatesta']);
 
-        $user->setName('Francesco Malatesta');
-        $user->setEmail('francescomalatesta@live.it');
-        $user->setPassword($encoded);
-
-        $manager->persist($user);
-
-        $task = new Task('buy milk', 'remember the milk.');
-        $task->setUser($user);
-
-        $manager->persist($task);
-
-        $task = new Task('buy more milk', 'and just remember the milk dude');
-        $task->setUser($user);
-
-        $manager->persist($task);
-
-        $manager->flush();
+        $this->container->get('command_bus')->handle(new TaskAddCommand('buy milk', 'remember the milk.', $user));
+        $this->container->get('command_bus')->handle(new TaskAddCommand('buy more milk', 'and just remember the milk mate', $user));
     }
 }

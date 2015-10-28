@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * User
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repositories\UserRepository")
  * @ORM\Table(name="users")
  */
 class User implements UserInterface
@@ -74,20 +74,6 @@ class User implements UserInterface
     }
 
     /**
-     * Set name
-     *
-     * @param string $name
-     *
-     * @return User
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
      * Get name
      *
      * @return string
@@ -98,20 +84,6 @@ class User implements UserInterface
     }
 
     /**
-     * Set email
-     *
-     * @param string $email
-     *
-     * @return User
-     */
-    public function setEmail($email)
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    /**
      * Get email
      *
      * @return string
@@ -119,20 +91,6 @@ class User implements UserInterface
     public function getEmail()
     {
         return $this->email;
-    }
-
-    /**
-     * Set password
-     *
-     * @param string $password
-     *
-     * @return User
-     */
-    public function setPassword($password)
-    {
-        $this->password = $password;
-
-        return $this;
     }
 
     /**
@@ -153,14 +111,6 @@ class User implements UserInterface
         return $this->tasks;
     }
 
-    /**
-     * @param mixed $tasks
-     */
-    public function setTasks($tasks)
-    {
-        $this->tasks = $tasks;
-    }
-
     public function getRoles()
     {
         return ['ROLE_USER'];
@@ -168,7 +118,7 @@ class User implements UserInterface
 
     public function getSalt()
     {
-        return null;
+        return md5($this->email.time());
     }
 
     public function getUsername()
@@ -178,6 +128,14 @@ class User implements UserInterface
 
     public function eraseCredentials()
     {
+
+    }
+
+    public function signUp($fullName, $emailAddress, $password)
+    {
+        $this->name = $fullName;
+        $this->email = $emailAddress;
+        $this->password = $password;
     }
 }
 
